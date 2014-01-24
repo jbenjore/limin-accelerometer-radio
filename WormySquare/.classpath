@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/processing-2.1/core/library/core.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/RadioCapture"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/guava-15.0.jar" sourcepath="C:/Users/josh/.m2/repository/com/google/guava/guava/15.0/guava-15.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/jsr305-2.0.2.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/processing-2.1/core/library/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/processing-2.1/core/library/jogl-all.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/joda-time-2.3/joda-time-2.3.jar" sourcepath="C:/Program Files (x86)/joda-time-2.3/joda-time-2.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Program%20Files%20(x86)/joda-time-2.3/joda-time-2.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/TronSquare"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

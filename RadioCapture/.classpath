@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry exported="true" kind="lib" path="C:/Program Files (x86)/xbee-api-0.9/xbee-api-0.9.jar" sourcepath="C:/Program Files (x86)/xbee-api-0.9/src"/>
+	<classpathentry exported="true" kind="lib" path="C:/Program Files (x86)/xbee-api-0.9/lib/log4j.jar" sourcepath="C:/Program Files (x86)/xbee-api-0.9/src"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/mfz-rxtx-2.2-20081207-win-x64/RXTXcomm.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files (x86)/mfz-rxtx-2.2-20081207-win-x64"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/guava-15.0.jar" sourcepath="C:/Users/josh/.m2/repository/com/google/guava/guava/15.0/guava-15.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/jsr305-2.0.2.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/google-gson-2.2.4/gson-2.2.4.jar" sourcepath="C:/Program Files (x86)/google-gson-2.2.4/gson-2.2.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Program%20Files%20(x86)/google-gson-2.2.4/gson-2.2.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/joda-time-2.3/joda-time-2.3.jar" sourcepath="C:/Program Files (x86)/joda-time-2.3/joda-time-2.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Program%20Files%20(x86)/joda-time-2.3/joda-time-2.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/units/binaries/units.jar" sourcepath="C:/Program Files (x86)/units/sources">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Program%20Files%20(x86)/units/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/unit-api-0.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/commons-math3-3.2/commons-math3-3.2.jar" sourcepath="C:/Program Files (x86)/commons-math3-3.2/commons-math3-3.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Program%20Files%20(x86)/commons-math3-3.2/commons-math3-3.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Program Files (x86)/commons-cli-1.2/commons-cli-1.2.jar" sourcepath="C:/Program Files (x86)/commons-cli-1.2/src">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Program%20Files%20(x86)/commons-cli-1.2/commons-cli-1.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
