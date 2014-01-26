@@ -1,15 +1,16 @@
 import java.util.Iterator;
 
+import limn.radio.AccelerometerData;
+import limn.radio.AccelerometerRawData;
+import limn.radio.FileDataSource;
+import limn.radio.FrameLockedIterator;
+import limn.radio.IDataSource;
+import limn.radio.RadioDataSource;
+import limn.radio.util.Clock;
+
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.limn.accelerometer_radio.AccelerometerData;
-import org.limn.accelerometer_radio.AccelerometerRawData;
-import org.limn.accelerometer_radio.FileDataSource;
-import org.limn.accelerometer_radio.FrameLockedIterator;
-import org.limn.accelerometer_radio.IDataSource;
-import org.limn.accelerometer_radio.RadioDataSource;
-import org.limn.accelerometer_radio.util.Clock;
 
 import com.google.common.base.Joiner;
 
@@ -41,13 +42,7 @@ public class WormySquare extends AccelerometerSketch {
         colorMode(HSB, 6);
 
         frameRate((float) FRAME_RATE);
-        playTranscript(
-                "C:\\Users\\Josh\\Desktop\\RadioCapture-1389754237019.csv",
-                null,
-                FRAME_RATE);
-        //readRadio("COM7", 9600,
-        //        "C:\\Users\\Josh\\Desktop\\RadioCapture-" + System.currentTimeMillis() + ".csv");
-
+        accelerometerData();
         background(0, 0, 0);
         
         textSize(32);

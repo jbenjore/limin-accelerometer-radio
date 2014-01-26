@@ -1,0 +1,161 @@
+import java.util.ListIterator;
+
+import limn.radio.DataDumper;
+import limn.radio.util.Clock;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.log4j.Logger;
+import org.joda.time.Instant;
+import org.joda.time.ReadableInstant;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+
+import processing.core.PApplet;
+
+
+public class Limn {
+    final static Logger LOGGER = Logger.getLogger(Limn.class);
+    private static final Options OPTIONS = Limn.createOptions();
+
+    public static class Opts {
+        private final String[] args;
+        public final boolean replay;
+        public final String appName;
+        public final String port;
+        public final int baudRate;
+        public final String file;
+        public final boolean frameLocked;
+        public final ReadableInstant skipTil;
+        public Opts(String[] args, boolean replay, String appName, String port,
+                int baudRate, String file, ReadableInstant skipTil, boolean frameLocked) {
+            this.args = args;
+            this.replay = replay;
+            this.appName = appName;
+            this.port = port;
+            this.baudRate = baudRate;
+            this.file = file;
+            this.skipTil = skipTil;
+            this.frameLocked = frameLocked;
+        }
+        public String toString() {
+            ToStringHelper h = Objects.toStringHelper(this);
+            if (args.length > 0) {
+                h.add("args", args);
+            }
+            if (replay) {
+                h.add("replay", true);
+            }
+            if (appName != null) {
+                h.add("appName", appName);
+            }
+            if (port != null) {
+                h.add("port", port);
+            }
+            if (baudRate != 0) {
+                h.add("baudRate", baudRate);
+            }
+            if (file != null) {
+                h.add("file", file);
+            }
+            if (skipTil != null) {
+                h.add("skipTil", skipTil);
+            }
+            if (frameLocked) {
+                h.add("frameLocked", frameLocked);
+            }
+            return h.toString();
+        }
+    }
+    
+    public static Opts parseArgs(String[] args) throws ParseException {
+        GnuParser parser = new GnuParser() {
+            @Override
+            protected void processOption(String arg, ListIterator iter) throws ParseException {
+                if (getOptions().hasOption(arg)) {
+                    super.processOption(arg, iter);
+                }
+            }
+        };
+        CommandLine parse = parser.parse(OPTIONS, args);
+        return new Opts(
+                parse.getArgs(),
+                parse.hasOption("replay"),
+                parse.getOptionValue("app"),
+                parse.getOptionValue("port", "COM7"),
+                Integer.parseInt(parse.getOptionValue("baudRate", "9600")),
+                parse.getOptionValue("file"),
+                parse.hasOption("skip") ? Instant.parse(parse.getOptionValue("skip")) : null,
+                Boolean.parseBoolean(parse.getOptionValue("frameLocked", "false")));
+    }
+    
+    public static void main(String[] args) throws ParseException {
+        Opts opts = parseArgs(args);
+        LOGGER.warn(opts);
+        if (opts.replay) {
+            if (opts.appName != null) {
+                PApplet.main(opts.appName, args);
+            }
+            else {
+                DataDumper.replay(
+                        opts.file != null ? opts.file : "C:\\Users\\josh\\Desktop\\RadioCapture-" + System.currentTimeMillis() + ".csv",
+                        opts.frameLocked);
+            }
+        }
+        else {
+            if (opts.appName != null) {
+                PApplet.main(opts.appName, args);
+            }
+            else {
+                DataDumper.capture(
+                        opts.port,
+                        opts.baudRate,
+                        opts.file != null ? opts.file : "C:\\Users\\josh\\Desktop\\RadioCapture-" + System.currentTimeMillis() + ".csv",
+                        Clock.systemUTC());
+            }
+        }
+    }
+
+    private static Options createOptions() {
+        Options options = new Options();
+        options.addOption(
+                OptionBuilder.withArgName("app")
+                .hasArg()
+                .withDescription("app")
+                .create("app"));
+        options.addOption(
+                OptionBuilder
+                .withArgName("file")
+                .hasArg()
+                .withDescription("data file")
+                .create("file"));
+        options.addOption(
+                OptionBuilder
+                .withArgName("port")
+                .hasArg()
+                .withDescription("XBee port")
+                .create("port"));
+        options.addOption(
+                OptionBuilder
+                .withArgName("baudRate")
+                .hasArg()
+                .withType(Integer.class)
+                .withDescription("XBee baud rate")
+                .create("baudRate"));
+        options.addOption(
+                OptionBuilder
+                .withArgName("replay")
+                .withDescription("replay")
+                .create("replay"));
+        options.addOption(
+                OptionBuilder
+                .withArgName("frameLocked")
+                .withDescription("replay at normal speed")
+                .create("frameLocked"));
+        return options;
+    }
+}

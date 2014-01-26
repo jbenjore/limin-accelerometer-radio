@@ -1,5 +1,7 @@
+
+import limn.radio.AccelerometerData;
+
 import org.apache.log4j.Logger;
-import org.limn.accelerometer_radio.AccelerometerData;
 
 final class QueuePublisher implements Runnable {
     final static Logger LOGGER = Logger.getLogger(QueuePublisher.class);

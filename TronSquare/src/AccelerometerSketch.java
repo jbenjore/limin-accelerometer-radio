@@ -1,18 +1,24 @@
+
+
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 
 import javax.annotation.Nullable;
 
+import limn.radio.AccelerometerData;
+import limn.radio.FileDataSource;
+import limn.radio.FrameLockedIterator;
+import limn.radio.RadioDataSource;
+import limn.radio.util.Clock;
+
+import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 import org.joda.time.Instant;
 import org.joda.time.ReadableInstant;
-import org.limn.accelerometer_radio.AccelerometerData;
-import org.limn.accelerometer_radio.FileDataSource;
-import org.limn.accelerometer_radio.FrameLockedIterator;
-import org.limn.accelerometer_radio.RadioDataSource;
 
 import processing.core.PApplet;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Queues;
 
 public class AccelerometerSketch extends PApplet {
@@ -41,6 +47,26 @@ public class AccelerometerSketch extends PApplet {
         this.iterator = iterator;
     }
 
+    protected void accelerometerData() {
+        Limn.Opts opts = null;
+        try {
+            opts = Limn.parseArgs(args);
+        } catch (ParseException e) {
+            Throwables.propagate(e);
+        }
+
+        String file = sketchPath + "\\RadioCapture-" + System.currentTimeMillis() + ".csv";
+        if (opts.replay) {
+            playTranscript(
+                    file,
+                    opts.skipTil,
+                    opts.frameLocked ? 24 : 0);
+        }
+        else {
+            playRadio(opts.port, opts.baudRate, file, Clock.systemUTC());
+        }
+    }
+
     protected void queue(BlockingQueue<AccelerometerData> queue) {
         this.queue = queue;
     }
@@ -65,9 +91,9 @@ public class AccelerometerSketch extends PApplet {
         queueThread.start();
     }
 
-    protected void playRadio(String port, int baudRate, String fileName) {
+    protected void playRadio(String port, int baudRate, String fileName, Clock clock) {
         LOGGER.info(port + "@" + baudRate + " -> " + fileName);
-        iterator = new RadioDataSource(port, baudRate, fileName);
+        iterator = new RadioDataSource(port, baudRate, fileName, clock);
         queue = Queues.<AccelerometerData>newArrayBlockingQueue(1000);
         queueThread = new Thread(new QueuePublisher(this));
         queueThread.start();

@@ -1,12 +1,11 @@
+import limn.radio.AccelerometerData;
+import limn.radio.util.Clock;
+
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
-import org.limn.accelerometer_radio.AccelerometerData;
-
-import ddf.minim.AudioPlayer;
-import ddf.minim.Minim;
 
 /**
  * A tron-like scape where crystals grow based on motion.
@@ -67,10 +66,6 @@ public class TronSquare extends AccelerometerSketch {
     private float X, Y, Z;
     private float gxf, gyf, gzf;
     private long prevTime;
-    private Minim minim;
-    private AudioPlayer player;
-    private boolean playing;
-    private AudioPlayer player2;
 
     @Override
     public void setup() {
@@ -87,14 +82,7 @@ public class TronSquare extends AccelerometerSketch {
         textSize(32F);
         frameRate(FRAME_RATE);
 
-        // Replay from disk or play live.
-//        readTranscript(
-//                "C:\\Users\\Josh\\Desktop\\RadioCapture-1389754237019.csv",
-//                DateTime.parse("2014-01-14T19:40:00.000-08"),
-//                FRAME_RATE
-//        );
-        playRadio("COM7", 9600,
-                "C:\\Users\\Josh\\Desktop\\RadioCapture-" + System.currentTimeMillis() + ".csv");
+        accelerometerData();
     }
 
     @Override
