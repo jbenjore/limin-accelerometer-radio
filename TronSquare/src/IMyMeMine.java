@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import limn.radio.AccelerometerRawData;
 
@@ -87,12 +88,15 @@ public class IMyMeMine extends AccelerometerSketch {
         @Override
         public String toString() {
             return Objects.toStringHelper(this)
-                    .add("name", this.name)
+                    .add("name", this.getName())
                     .add("file", this.file)
                     .toString();
         }
+        private static final Pattern PREFIX_RX = Pattern.compile("^[^a-zA-Z]+");
+        private static final Pattern SUFFIX_RX = Pattern.compile("\\.mp3$");
         public String getName() {
-            return this.name;
+            String a = PREFIX_RX.matcher(this.name).replaceFirst("");
+            return SUFFIX_RX.matcher(a).replaceFirst("");
         }
         public String getFile() {
             return this.file;
@@ -223,6 +227,7 @@ public class IMyMeMine extends AccelerometerSketch {
             return;
         case 1:
             background(0);
+            drawSongNames();
             drawColorBars(
                     this.smoothed.get(Dimension.XA).doubleValue(),
                     this.smoothed.get(Dimension.YA).doubleValue(),
@@ -250,6 +255,7 @@ public class IMyMeMine extends AccelerometerSketch {
                 // We're inside the three second grace period so don't switch
                 // away.
                 drawFadingBackground(now);
+                drawSongNames();
                 drawColorBars(
                         this.smoothed.get(Dimension.XA).doubleValue(),
                         this.smoothed.get(Dimension.YA).doubleValue(),
@@ -261,6 +267,7 @@ public class IMyMeMine extends AccelerometerSketch {
         }
 
         background(0);
+        drawSongNames();
         drawColorBars(
                 this.smoothed.get(Dimension.XA).doubleValue(),
                 this.smoothed.get(Dimension.YA).doubleValue(),
@@ -299,6 +306,57 @@ public class IMyMeMine extends AccelerometerSketch {
                 this.staticPlayer.play(0);
             }
             background(1F, 1F, 1F);
+        }
+    }
+
+    private void drawSongNames() {
+//        fill(0);
+//        stroke(0);
+//        rect(0F, 0F, 100F, this.displayWidth);
+
+        drawSongName(Dimension.XA, 0F, 0F, (float) oneThirdWidth(1D), 100F);
+        drawSongName(Dimension.YA, (float) oneThirdWidth(1D), 0F, (float) (2D * oneThirdWidth(1D)), 100F);
+        drawSongName(Dimension.ZA, (float) (2D * oneThirdWidth(1D)), 0F, this.displayWidth, 100F);
+    }
+
+    private void drawSongName(Dimension dimension, float a, float b, float c, float d) {
+        RankablePlayer rPlayer = this.songPlayers.get(dimension);
+        if (rPlayer == null) {
+            return;
+        }
+        String song = rPlayer.getSong().getName();
+        final int bgColor, fgColor;
+        if (rPlayer.getPlayer().isMuted()) {
+            bgColor = 0;
+            fgColor = 1;
+        }
+        else {
+            bgColor = 1;
+            fgColor = 0;
+        }
+
+        stroke(bgColor);
+        fill(bgColor);
+        rect(a, b, c, d);
+
+        fill(fgColor);
+        stroke(fgColor);
+        textSize(20);
+        text(song, a + 35F, b + 30F);
+
+        long wait = this.postSwitchDeadline - System.currentTimeMillis();
+        if (!rPlayer.getPlayer().isMuted() && wait > 0L) {
+            float radius = 10F;
+            fill(bgColor);
+            stroke(fgColor);
+            float s = map(-wait, 0F, DELAY, 0, TWO_PI) - HALF_PI;
+            float e = a + 15F;
+            float f = b + 20F;
+            ellipse(e, f, radius*2F, radius*2F);
+
+            fill(fgColor);
+            stroke(fgColor);
+            line(e, f, e + cos(s) * radius, f + sin(s) * radius);
         }
     }
 
@@ -341,8 +399,10 @@ public class IMyMeMine extends AccelerometerSketch {
     private void drawFadingBackground(long now) {
         long gray = this.postSwitchDeadline - now;
         float delta = (float) gray / (float) DELAY;
-        fill(1F, 1F, 1F);
-        background(delta, delta, delta);
+        background(0);
+        //fill(1F, 1F, 1F);
+        //background(delta);
+        //background(delta, delta, delta);
     }
 
     private double oneThirdWidth(double w) { 
