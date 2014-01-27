@@ -1,4 +1,4 @@
-limn-accelerometer-radio
+limn-radio
 =========================
 
-Experiments in Processing w/ ADXL335 + XBee Radio
+Dance experiments in Processing w/ ADXL335 + XBee Radio
