@@ -1,16 +1,12 @@
 import limn.radio.AccelerometerData;
 import limn.radio.AccelerometerRawData;
 
-import org.apache.log4j.Logger;
-
 /**
  * The full screen changes colors when the dancer moves in three dimensions.
  *
  * @author Josh ben Jore
  */
 public class BlinkyLight extends AccelerometerSketch {
-    private final static Logger LOGGER = Logger.getLogger(BlinkyLight.class);
-
     private static final int FRAME_RATE = 24;
 
     @Override
@@ -20,7 +16,7 @@ public class BlinkyLight extends AccelerometerSketch {
 
     @Override
     public void setup() {
-        size(displayWidth, displayHeight);
+        size(this.displayWidth, this.displayHeight);
         colorMode(HSB, 350);
 
         // String fileName = "C:\\Users\\Josh\\Desktop\\RadioCapture-" + System.currentTimeMillis() + ".csv";

@@ -69,7 +69,7 @@ public class WormySquare extends AccelerometerSketch {
 
         //background(x + 3, y + 3, z + 3);
 
-        // "To the color X!"
+        // "To the color XA!"
         float colorX = Math.abs(x * 6);
         float colorY = Math.abs(y * 6);
         float colorZ = Math.abs(z * 6);

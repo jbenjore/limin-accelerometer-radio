@@ -201,10 +201,7 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
                 }
 
                 try {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(sb.toString());
-                    }
-                    sb.append('\n');
+                    sb.append("\r\n");
                     writer.write(sb.toString());
                     writer.flush();
                 } catch (IOException e) {

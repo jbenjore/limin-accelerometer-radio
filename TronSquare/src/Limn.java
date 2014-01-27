@@ -42,31 +42,32 @@ public class Limn {
             this.skipTil = skipTil;
             this.frameLocked = frameLocked;
         }
+        @Override
         public String toString() {
             ToStringHelper h = Objects.toStringHelper(this);
-            if (args.length > 0) {
-                h.add("args", args);
+            if (this.args.length > 0) {
+                h.add("args", this.args);
             }
-            if (replay) {
+            if (this.replay) {
                 h.add("replay", true);
             }
-            if (appName != null) {
-                h.add("appName", appName);
+            if (this.appName != null) {
+                h.add("appName", this.appName);
             }
-            if (port != null) {
-                h.add("port", port);
+            if (this.port != null) {
+                h.add("port", this.port);
             }
-            if (baudRate != 0) {
-                h.add("baudRate", baudRate);
+            if (this.baudRate != 0) {
+                h.add("baudRate", this.baudRate);
             }
-            if (file != null) {
-                h.add("file", file);
+            if (this.file != null) {
+                h.add("file", this.file);
             }
-            if (skipTil != null) {
-                h.add("skipTil", skipTil);
+            if (this.skipTil != null) {
+                h.add("skipTil", this.skipTil);
             }
-            if (frameLocked) {
-                h.add("frameLocked", frameLocked);
+            if (this.frameLocked) {
+                h.add("frameLocked", this.frameLocked);
             }
             return h.toString();
         }
@@ -124,7 +125,7 @@ public class Limn {
         Options options = new Options();
         options.addOption(
                 OptionBuilder.withArgName("app")
-                .hasArg()
+                //.hasArg()
                 .withDescription("app")
                 .create("app"));
         options.addOption(

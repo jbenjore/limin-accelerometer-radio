@@ -32,30 +32,32 @@ public class AccelerometerSketch extends PApplet {
     private long prevTime;
 
     public Iterator<AccelerometerData> iterator() {
-        return iterator;
+        return this.iterator;
     }
 
     public BlockingQueue<AccelerometerData> queue() {
-        return queue;
+        return this.queue;
     }
 
     public Thread queueThread() {
-        return queueThread;
+        return this.queueThread;
     }
 
+    @SuppressWarnings("hiding")
     protected void iterator(Iterator<AccelerometerData> iterator) {
         this.iterator = iterator;
     }
 
+    @SuppressWarnings("null")
     protected void accelerometerData() {
         Limn.Opts opts = null;
         try {
-            opts = Limn.parseArgs(args);
+            opts = Limn.parseArgs(this.args);
         } catch (ParseException e) {
             Throwables.propagate(e);
         }
 
-        String file = sketchPath + "\\RadioCapture-" + System.currentTimeMillis() + ".csv";
+        String file = this.sketchPath + "\\RadioCapture-" + System.currentTimeMillis() + ".csv";
         if (opts.replay) {
             playTranscript(
                     file,
@@ -67,17 +69,19 @@ public class AccelerometerSketch extends PApplet {
         }
     }
 
+    @SuppressWarnings("hiding")
     protected void queue(BlockingQueue<AccelerometerData> queue) {
         this.queue = queue;
     }
 
+    @SuppressWarnings("hiding")
     protected void queueThread(Thread queueThread) {
         this.queueThread = queueThread;
     }
 
     protected void playTranscript(String fileName, @Nullable ReadableInstant skipTil, int frameRateLock) {
         // Skip to 7:40 for Lisa's class.
-        iterator = new FileDataSource(
+        this.iterator = new FileDataSource(
                 "C:\\Users\\Josh\\Desktop\\RadioCapture-1389754237019.csv");
         if (skipTil != null) {
             skipTil(skipTil);
@@ -85,59 +89,59 @@ public class AccelerometerSketch extends PApplet {
         if (frameRateLock > 0) {
             frameLock(frameRateLock);
         }
-        iterator(iterator);
+        iterator(this.iterator);
         queue(Queues.<AccelerometerData>newSynchronousQueue());
         queueThread(new Thread(new QueuePublisher(this)));
-        queueThread.start();
+        this.queueThread.start();
     }
 
     protected void playRadio(String port, int baudRate, String fileName, Clock clock) {
         LOGGER.info(port + "@" + baudRate + " -> " + fileName);
-        iterator = new RadioDataSource(port, baudRate, fileName, clock);
-        queue = Queues.<AccelerometerData>newArrayBlockingQueue(1000);
-        queueThread = new Thread(new QueuePublisher(this));
-        queueThread.start();
+        this.iterator = new RadioDataSource(port, baudRate, fileName, clock);
+        this.queue = Queues.<AccelerometerData>newArrayBlockingQueue(1000);
+        this.queueThread = new Thread(new QueuePublisher(this));
+        this.queueThread.start();
     }
 
     @Nullable
     protected AccelerometerData take() {
         AccelerometerData data = null;
         try {
-            data = queue.take();
+            data = this.queue.take();
         } catch (InterruptedException e) {
             LOGGER.error(e);
-            data = prevData;
+            data = this.prevData;
         }
         if (data != null ) {
-            return prevData = data;
+            return this.prevData = data;
         }
-        else {
-            // Might be null.
-            return prevData;
-        }
+        
+        // Might be null.
+        return this.prevData;
     }
 
     protected void arrowOfTime(long time) {
-        if (prevTime > time) {
-            LOGGER.warn("Time has looped from " + new Instant(prevTime) +
+        if (this.prevTime > time) {
+            LOGGER.warn("Time has looped from " + new Instant(this.prevTime) +
                     " to " + new Instant(time) + "; exiting");
             System.exit(0);
         }
-        prevTime = time;
+        this.prevTime = time;
     }
 
     protected void skipTil(ReadableInstant skipTil) {
         long millis = skipTil.getMillis();
-        while (iterator != null && iterator.hasNext()) {
-            AccelerometerData data = iterator.next();
+        while (this.iterator != null && this.iterator.hasNext()) {
+            AccelerometerData data = this.iterator.next();
             if (data.getTime() >= millis) {
                 break;
             }
         }
     }
-    
+
+    @SuppressWarnings("hiding")
     protected void frameLock(int frameRate) {
-        iterator = new FrameLockedIterator(
-                iterator, frameRate);
+        this.iterator = new FrameLockedIterator(
+                this.iterator, frameRate);
     }
 }
