@@ -33,7 +33,7 @@ public class LineReadingIterator extends AbstractIterator<String> {
     protected String computeNext() {
         String line = null;
         try {
-            line = lineReader.readLine();
+            line = this.lineReader.readLine();
         } catch (IOException e) {
             Throwables.propagate(e);
         }

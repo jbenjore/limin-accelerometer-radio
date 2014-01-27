@@ -16,8 +16,8 @@ public class DecodingIterator extends AbstractIterator<AccelerometerRawData> {
     @Nullable
     @Override
     protected AccelerometerRawData computeNext() {
-        while (iterator.hasNext()) {
-            String line = iterator.next();
+        while (this.iterator.hasNext()) {
+            String line = this.iterator.next();
             if (line != null) {
                 AccelerometerRawData rawData = AccelerometerRawData.fromLine(line);
                 if (rawData != null) {

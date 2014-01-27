@@ -24,8 +24,8 @@ public class ZNetRxIoSampleResponseStream extends AbstractIterator<ZNetRxIoSampl
 
     @Override
     protected ZNetRxIoSampleResponse computeNext() {
-        while (iterator.hasNext()) {
-            XBeeResponse xBeeResponse = iterator.next();
+        while (this.iterator.hasNext()) {
+            XBeeResponse xBeeResponse = this.iterator.next();
             try {
                 return (ZNetRxIoSampleResponse) xBeeResponse;
             }

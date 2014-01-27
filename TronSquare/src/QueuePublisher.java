@@ -14,12 +14,12 @@ final class QueuePublisher implements Runnable {
 
     @Override
     public void run() {
-        while (sketch.iterator().hasNext()) {
-            AccelerometerData data = sketch.iterator().next();
+        while (this.sketch.iterator().hasNext()) {
+            AccelerometerData data = this.sketch.iterator().next();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Ready " + data);
             }
-            while (!sketch.queue().offer(data)) {
+            while (!this.sketch.queue().offer(data)) {
                 try {
                     Thread.sleep(5);
                 } catch (InterruptedException e) {

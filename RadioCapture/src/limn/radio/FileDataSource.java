@@ -11,7 +11,7 @@ import com.google.common.collect.AbstractIterator;
 public class FileDataSource extends AbstractIterator<AccelerometerData> implements IDataSource {
     private final String fileName;
     private Iterator<AccelerometerData> iterator;
-    
+
     public FileDataSource(String fileName) {
         this.fileName = checkNotNull(fileName, "fileName");
     }

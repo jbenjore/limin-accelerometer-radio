@@ -21,7 +21,7 @@ public class XBeeResponseIterator<T> extends AbstractIterator<T> {
 
     @Override
     protected T computeNext() {
-        if (!xbee.isConnected()) {
+        if (!this.xbee.isConnected()) {
             return endOfData();
         }
 
@@ -32,9 +32,7 @@ public class XBeeResponseIterator<T> extends AbstractIterator<T> {
                     LOGGER.debug("Got" + resp);
                     return resp;
                 }
-                else {
-                    LOGGER.warn("Timed out waiting for XBee response");
-                }
+                LOGGER.warn("Timed out waiting for XBee response");
             }
             catch (XBeeTimeoutException e) {
                 LOGGER.warn(e);
@@ -45,8 +43,8 @@ public class XBeeResponseIterator<T> extends AbstractIterator<T> {
     }
 
     public void disconnect() {
-        if (xbee.isConnected()) {
-            xbee.close();
+        if (this.xbee.isConnected()) {
+            this.xbee.close();
         }
     }
 

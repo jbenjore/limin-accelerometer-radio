@@ -8,7 +8,6 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.AbstractIterator;
 
 public class DataSavingIterator extends AbstractIterator<AccelerometerData> {
@@ -16,8 +15,6 @@ public class DataSavingIterator extends AbstractIterator<AccelerometerData> {
 
     private final Iterator<AccelerometerData> iterator;
     private final Writer writer;
-
-    private long count = Long.MIN_VALUE;
 
     public DataSavingIterator(Iterator<AccelerometerData> iterator, Writer writer) {
         this.iterator = checkNotNull(iterator, "iterator");
@@ -35,19 +32,5 @@ public class DataSavingIterator extends AbstractIterator<AccelerometerData> {
     }
 
     private void saveData(AccelerometerData data) {
-    }
-
-    private void flushOccasionally() {
-        ++count;
-        if (Long.MAX_VALUE == count) {
-            count = Long.MIN_VALUE;
-        }
-        if (count % 100L == 0L) {
-            try {
-                writer.flush();
-            } catch (IOException e) {
-                LOGGER.error(e);
-            }
-        }
     }
 }

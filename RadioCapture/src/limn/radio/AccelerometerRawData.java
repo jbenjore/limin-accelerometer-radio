@@ -70,14 +70,13 @@ public class AccelerometerRawData {
         int x, y, z;
         Integer supplyVoltage;
 
-        AccelerometerRawData rawData;
         switch (fields.size()) {
         case 5:
             time = Long.parseLong(fields.get(0));
             x = Integer.parseInt(fields.get(1));
             y = Integer.parseInt(fields.get(2));
             z = Integer.parseInt(fields.get(3));
-            supplyVoltage = Integer.parseInt(fields.get(4));
+            supplyVoltage = Integer.valueOf(fields.get(4));
 
             return new AccelerometerRawData(time, x, y, z, supplyVoltage);
         case 4:
@@ -93,9 +92,9 @@ public class AccelerometerRawData {
 
     public AccelerometerRawData(long time, ZNetRxIoSampleResponse io) {
         this(time,
-                checkNotNull(io, "io").getAnalog(0),
-                io.getAnalog(1),
-                io.getAnalog(2),
+                checkNotNull(io, "io").getAnalog(0).intValue(),
+                io.getAnalog(1).intValue(),
+                io.getAnalog(2).intValue(),
                 io.getSupplyVoltage());
     }
 
@@ -113,19 +112,19 @@ public class AccelerometerRawData {
     }
 
     public long getTime() {
-        return time;
+        return this.time;
     }
 
     public int getX() {
-        return x;
+        return this.x;
     }
     
     public int getY() {
-        return y;
+        return this.y;
     }
 
     public int getZ() {
-        return z;
+        return this.z;
     }
 
     @Nullable
@@ -136,22 +135,22 @@ public class AccelerometerRawData {
     @Override
     public String toString() {
         Objects.ToStringHelper sb = Objects.toStringHelper(this)
-                .add("time", time)
-                .add("x", x)
-                .add("y", y)
-                .add("z", z);
-        if (voltage != null) {
-            sb.add("v", voltage);
+                .add("time", this.time)
+                .add("x", this.x)
+                .add("y", this.y)
+                .add("z", this.z);
+        if (this.voltage != null) {
+            sb.add("v", this.voltage);
         }
         return sb.toString();
     }
 
     public AccelerometerData toAccelerometerData() {
         return new AccelerometerData(
-                time,
-                ((x - X0) / RANGE) + 0.0035448671943733266D,
-                ((y - Y0) / RANGE) -0.0525404383804913D,
-                ((z - Z0) / RANGE) + 1.0178923920194956D,
+                this.time,
+                ((this.x - X0) / RANGE) + 0.0035448671943733266D,
+                ((this.y - Y0) / RANGE) -0.0525404383804913D,
+                ((this.z - Z0) / RANGE) + 1.0178923920194956D,
                 this);
     }
 

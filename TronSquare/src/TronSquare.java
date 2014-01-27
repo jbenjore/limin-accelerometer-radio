@@ -1,7 +1,5 @@
 import limn.radio.AccelerometerData;
-import limn.radio.util.Clock;
 
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
@@ -13,7 +11,6 @@ import org.joda.time.format.DateTimeFormatterBuilder;
  * @author Josh ben Jore
  */
 public class TronSquare extends AccelerometerSketch {
-    final static Logger LOGGER = Logger.getLogger(TronSquare.class);
     private static final DateTimeFormatter FORMATTER =
         new DateTimeFormatterBuilder()
             .appendYearOfEra(4, 4)
@@ -44,35 +41,18 @@ public class TronSquare extends AccelerometerSketch {
     private static final int Z_HALF = 300;
     private static final int Z_MIN = 100;
     
-    private static final int X1 = 340;
-    private static final int X0 = 286;
-    private static final int X_1 = 228;
-    private static final int X_RANGE = (X1 - X_1) / 2;
-
-    private static final int Y1 = 342;
-    private static final int Y0 = 286;
-    private static final int Y_1 = 227;
-    private static final int Y_RANGE = (Y1 - Y_1) / 2;
-
-    private static final int Z1 = 356;
-    private static final int Z0 = 295;
-    private static final int Z_1 = 239;
-    private static final int Z_RANGE = (Z1 - Z_1) / 2;
-
     private static final DateTimeZone TZ = DateTimeZone.forID("America/Los_Angeles");
 
     private static final int FRAME_RATE = 24;
 
-    private float X, Y, Z;
+    private float xa, ya, za;
     private float gxf, gyf, gzf;
-    private long prevTime;
-
     @Override
     public void setup() {
-        X = H_HALF;
-        Y = W_HALF;
-        Z = Z_HALF;
-        gxf = gyf = gzf = 0F;
+        this.xa = H_HALF;
+        this.ya = W_HALF;
+        this.za = Z_HALF;
+        this.gxf = this.gyf = this.gzf = 0F;
 
         size(H, W, P3D);
         smooth();
@@ -116,20 +96,20 @@ public class TronSquare extends AccelerometerSketch {
         float zf = (float) data.getZ();
 
         // Low pass filter.
-        gxf = 0.9F*gxf + 0.1F*xf;
-        gyf = 0.9F*gyf + 0.1F*yf;
-        gzf = 0.9F*gzf + 0.1F*zf;
+        this.gxf = 0.9F*this.gxf + 0.1F*xf;
+        this.gyf = 0.9F*this.gyf + 0.1F*yf;
+        this.gzf = 0.9F*this.gzf + 0.1F*zf;
 
         //background(x + 3, y + 3, z + 3);
-        X = ADD(X, -gyf, W_MAX, W_MIN);
-        Y = ADD(Y,  gxf, H_MAX, H_MIN);
-        Z = ADD(Z,  gzf, Z_MAX, Z_MIN);
-        fill(gzf, gyf, gxf);
-        translate(X, Y, Z);
+        this.xa = ADD(this.xa, -this.gyf, W_MAX, W_MIN);
+        this.ya = ADD(this.ya,  this.gxf, H_MAX, H_MIN);
+        this.za = ADD(this.za,  this.gzf, Z_MAX, Z_MIN);
+        fill(this.gzf, this.gyf, this.gxf);
+        translate(this.xa, this.ya, this.za);
         box(
-            (Math.abs(gyf) / 3) * H,
-            (Math.abs(gxf) / 3) * W,
-            (Math.abs(gzf) / 3) * Z
+            (Math.abs(this.gyf) / 3) * H,
+            (Math.abs(this.gxf) / 3) * W,
+            (Math.abs(this.gzf) / 3) * this.za
         );
 
 //        saveFrame("C:\\Users\\Josh\\Desktop\\RadioCapture-1389754237019\\"
@@ -137,7 +117,7 @@ public class TronSquare extends AccelerometerSketch {
 //                + ".tif");
     }
 
-    float ADD(float origValue, float delta, int max, int min) {
+    private static float ADD(float origValue, float delta, int max, int min) {
         float newValue = origValue + delta;
         if (newValue > max - min) {
             return min;

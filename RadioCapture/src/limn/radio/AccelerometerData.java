@@ -49,8 +49,8 @@ public class AccelerometerData {
             .add("x", this.x)
             .add("y", this.y)
             .add("z", this.z);
-        if (rawData != null) {
-            str.add("raw", rawData);
+        if (this.rawData != null) {
+            str.add("raw", this.rawData);
         }
         return str.toString();
     }

@@ -1,32 +1,14 @@
-import java.util.Iterator;
-
 import limn.radio.AccelerometerData;
-import limn.radio.AccelerometerRawData;
-import limn.radio.FileDataSource;
-import limn.radio.FrameLockedIterator;
-import limn.radio.IDataSource;
-import limn.radio.RadioDataSource;
-import limn.radio.util.Clock;
-
-import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import com.google.common.base.Joiner;
 
-import processing.core.PApplet;
-
 public class WormySquare extends AccelerometerSketch {
-    private final static Logger LOGGER = Logger.getLogger(WormySquare.class);
-    private static final DateTimeZone TZ = DateTimeZone.forID("America/Los_Angeles");
     private static final int FRAME_RATE = 24;
 
    
     private float posX;
     private float posY;
     private float posZ;
-
-    private long cutoff;
 
     @Override
     public boolean sketchFullScreen() {
@@ -35,13 +17,13 @@ public class WormySquare extends AccelerometerSketch {
 
     @Override
     public void setup() {
-        size(displayWidth, displayHeight, P3D);
+        size(this.displayWidth, this.displayHeight, P3D);
 
-        posX = posY = posZ = (int) (((float) Math.min(displayWidth, displayHeight)) / 2F);
+        this.posX = this.posY = this.posZ = (int) ((Math.min(this.displayWidth, this.displayHeight)) / 2F);
 
         colorMode(HSB, 6);
 
-        frameRate((float) FRAME_RATE);
+        frameRate(FRAME_RATE);
         accelerometerData();
         background(0, 0, 0);
         
@@ -55,7 +37,6 @@ public class WormySquare extends AccelerometerSketch {
             return;
         }
 
-        long time = data.getTime();
         float x = (float) data.getX();
         float y = (float) data.getY();
         float z = (float) data.getZ();
@@ -74,23 +55,32 @@ public class WormySquare extends AccelerometerSketch {
         float colorY = Math.abs(y * 6);
         float colorZ = Math.abs(z * 6);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("fill: " + Joiner.on(", ").join(colorX, colorY, colorZ));
+            LOGGER.debug("fill: " + Joiner.on(", ").join(
+                    Float.toString(colorX),
+                    Float.toString(colorY),
+                    Float.toString(colorZ)));
         }
         fill(colorX, colorY, colorZ);
 
         // "Increase the maximum resonator three more levels!"
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("stroke: " + Joiner.on(", ").join(colorZ, colorX, colorY));
+            LOGGER.debug("stroke: " + Joiner.on(", ").join(
+                    Float.toString(colorX),
+                    Float.toString(colorY),
+                    Float.toString(colorZ)));
         }
         stroke(colorZ, colorX, colorY);
 
-        posX = move(posX, x, 0, displayWidth);
-        posY = move(posY, y, 0, displayHeight);
-        posZ += z;
+        this.posX = move(this.posX, x, 0, this.displayWidth);
+        this.posY = move(this.posY, y, 0, this.displayHeight);
+        this.posZ += z;
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("pos: " + Joiner.on(", ").join(posX, posY, posZ));
+            LOGGER.debug("pos: " + Joiner.on(", ").join(
+                    Float.toString(this.posX),
+                    Float.toString(this.posY),
+                    Float.toString(this.posZ)));
         }
-        translate(posX, posY, posZ);
+        translate(this.posX, this.posY, this.posZ);
 
         float rotation = Math.max(Math.max(x, y), z);
         if (LOGGER.isDebugEnabled()) {
@@ -102,12 +92,15 @@ public class WormySquare extends AccelerometerSketch {
         float sizeY = Math.abs(50F * y);
         float sizeZ = Math.abs(50F * z);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("box: " + Joiner.on(", ").join(sizeX, sizeY, sizeZ));
+            LOGGER.debug("box: " + Joiner.on(", ").join(
+                    Float.toString(sizeX),
+                    Float.toString(sizeY),
+                    Float.toString(sizeZ)));
         }
         box(sizeX, sizeY, sizeZ);
     }
 
-    private float move(float sum, float delta, int min, int max) {
+    private static float move(float sum, float delta, int min, int max) {
         float newSum = sum + delta;
         if (newSum > max) {
             return min;

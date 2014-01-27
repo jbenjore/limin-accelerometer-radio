@@ -57,14 +57,14 @@ public class AccelerometerSketch extends PApplet {
             Throwables.propagate(e);
         }
 
-        String file = this.sketchPath + "\\RadioCapture-" + System.currentTimeMillis() + ".csv";
         if (opts.replay) {
             playTranscript(
-                    file,
+                    this.sketchPath + "\\" + opts.file,
                     opts.skipTil,
                     opts.frameLocked ? 24 : 0);
         }
         else {
+            String file = this.sketchPath + "\\RadioCapture-" + System.currentTimeMillis() + ".csv";
             playRadio(opts.port, opts.baudRate, file, Clock.systemUTC());
         }
     }
@@ -80,9 +80,7 @@ public class AccelerometerSketch extends PApplet {
     }
 
     protected void playTranscript(String fileName, @Nullable ReadableInstant skipTil, int frameRateLock) {
-        // Skip to 7:40 for Lisa's class.
-        this.iterator = new FileDataSource(
-                "C:\\Users\\Josh\\Desktop\\RadioCapture-1389754237019.csv");
+        this.iterator = new FileDataSource(fileName);
         if (skipTil != null) {
             skipTil(skipTil);
         }

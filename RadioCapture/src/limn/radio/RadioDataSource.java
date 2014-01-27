@@ -19,13 +19,11 @@ import javax.annotation.Nullable;
 
 import limn.radio.util.Clock;
 
-import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Queues;
 import com.rapplogic.xbee.api.XBee;
 import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeResponse;
@@ -45,9 +43,6 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
     }
 
     private static final long MODEM_RECONNECT_TIMEOUT = 1000L;
-    private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
-    private static final long RECONNECTION_SLEEP = 500L;
-    private static long counter = 0L;
     private final String port;
     private final int baudRate;
     private final String fileName;
@@ -93,11 +88,11 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
                 LOGGER.error(e);
             }
             try {
-                Path path = Paths.get(fileName);
+                Path path = Paths.get(this.fileName);
                 BasicFileAttributes readAttributes = Files.readAttributes(
                         path, BasicFileAttributes.class);
                 long size = readAttributes.size();
-                LOGGER.debug(fileName + " is " + size + "bytes");
+                LOGGER.debug(this.fileName + " is " + size + "bytes");
                 if (0L == size) {
                     LOGGER.warn("Deleting empty transcript");
                     File file = path.toFile();
@@ -122,7 +117,7 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
     private void ensureOpen() {
         this.xbee = new XBee();
         try {
-            this.xbee.open(port, baudRate);
+            this.xbee.open(this.port, this.baudRate);
         } catch (XBeeException e) {
             LOGGER.error(e);
             this.xbee = null;
@@ -131,7 +126,7 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
             return;
         }
 
-        Path path = Paths.get(fileName);
+        Path path = Paths.get(this.fileName);
         try {
             this.writer = Files.newBufferedWriter(path, Charset.defaultCharset(),
                     StandardOpenOption.CREATE,
@@ -144,40 +139,40 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
             return;
         }
 
+        final RadioDataSource obj = this;
         final Queue<TimestampedIo> queue = new ConcurrentLinkedQueue<TimestampedIo>();
         this.radioReader = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!finalizing) {
+                while (!obj.isFinalizing()) {
                     try {
-                        XBeeResponse response = xbee.getResponse(1000);
+                        XBeeResponse response = obj.getXbee().getResponse(1000);
                         if (response != null && response.getClass() == ZNetRxIoSampleResponse.class) {
                             queue.add(new TimestampedIo(
-                                    clock.millis(),
+                                    obj.getClock().millis(),
                                     (ZNetRxIoSampleResponse) response));
                         }
                     } catch (XBeeTimeoutException e) {
-                        LOGGER.warn(e);
+                        RadioDataSource.getLogger().warn(e);
                     } catch (XBeeException e) {
-                        LOGGER.error(e);
+                        RadioDataSource.getLogger().error(e);
                     }
                 }
             }
         });
 
-        final Clock clock = Clock.systemUTC();
         this.iterator = new AbstractIterator<AccelerometerData>() {
             @Override
             protected AccelerometerData computeNext() {
-                while (!finalizing) {
+                while (!obj.isFinalizing()) {
                     TimestampedIo timestampedIo = queue.poll();
                     if (timestampedIo == null) {
                         try {
                             Thread.sleep(5);
-                            continue;
                         } catch (InterruptedException e) {
-                            LOGGER.warn(e);
+                            RadioDataSource.getLogger().warn(e);
                         }
+                        continue;
                     }
 
                     AccelerometerRawData rawData = new AccelerometerRawData(
@@ -202,8 +197,8 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
 
                 try {
                     sb.append("\r\n");
-                    writer.write(sb.toString());
-                    writer.flush();
+                    obj.getWriter().write(sb.toString());
+                    obj.getWriter().flush();
                 } catch (IOException e) {
                     Throwables.propagate(e);
                 }
@@ -213,15 +208,35 @@ public class RadioDataSource extends AbstractIterator<AccelerometerData> impleme
         this.radioReader.start();
     }
 
+    public Writer getWriter() {
+        return this.writer;
+    }
+
+    public static Logger getLogger() {
+        return LOGGER;
+    }
+
+    public Clock getClock() {
+        return this.clock;
+    }
+
+    public XBee getXbee() {
+        return this.xbee;
+    }
+
+    public boolean isFinalizing() {
+        return this.finalizing;
+    }
+
     @Nullable @Override
     protected AccelerometerData computeNext() {
-        while (iterator == null || !iterator.hasNext()) {
-            if (reconnecting) {
+        while (this.iterator == null || !this.iterator.hasNext()) {
+            if (this.reconnecting) {
                 waitForModemReconnect();
             }
             this.ensureOpen();
             this.reconnecting = true;
         }
-        return iterator.next();
+        return this.iterator.next();
     }
 }

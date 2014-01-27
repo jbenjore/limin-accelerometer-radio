@@ -5,7 +5,7 @@ import limn.radio.util.Clock;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
@@ -123,40 +123,13 @@ public class Limn {
 
     private static Options createOptions() {
         Options options = new Options();
-        options.addOption(
-                OptionBuilder.withArgName("app")
-                //.hasArg()
-                .withDescription("app")
-                .create("app"));
-        options.addOption(
-                OptionBuilder
-                .withArgName("file")
-                .hasArg()
-                .withDescription("data file")
-                .create("file"));
-        options.addOption(
-                OptionBuilder
-                .withArgName("port")
-                .hasArg()
-                .withDescription("XBee port")
-                .create("port"));
-        options.addOption(
-                OptionBuilder
-                .withArgName("baudRate")
-                .hasArg()
-                .withType(Integer.class)
-                .withDescription("XBee baud rate")
-                .create("baudRate"));
-        options.addOption(
-                OptionBuilder
-                .withArgName("replay")
-                .withDescription("replay")
-                .create("replay"));
-        options.addOption(
-                OptionBuilder
-                .withArgName("frameLocked")
-                .withDescription("replay at normal speed")
-                .create("frameLocked"));
+        options.addOption(new Option("app", true, "app"));
+        options.addOption(new Option("file", true, "file"));
+        options.addOption(new Option("port", true, "XBee port"));
+        options.addOption(new Option("baudRate", true, "XBee baud rate"));
+        options.addOption(new Option("replay", false, "replay"));
+        options.addOption(new Option("skipTil", true, "skip til"));
+        options.addOption(new Option("frameLocked", false, "replay at normal speed"));
         return options;
     }
 }

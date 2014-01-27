@@ -7,6 +7,9 @@ package limn.radio.util;
  */
 public abstract class Clock {
     private static class SystemClock extends Clock {
+        public SystemClock() {
+        }
+
         @Override
         public long millis() {
             return System.currentTimeMillis();

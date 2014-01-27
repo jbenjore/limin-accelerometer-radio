@@ -23,6 +23,15 @@ import ddf.minim.Minim;
  * @author Josh ben Jore
  */
 public class IMyMeMine extends AccelerometerSketch {
+    private static final double SMOOTHNESS = 0.1D;
+    private static final long DELAY = 7000L;
+    private static final boolean PLAYSTATIC = false;
+    private static final String XDIR = "Louis Armstrong\\The Best Of Louis Armstrong Vol 1";
+    private static final String YDIR = "Ruth Wallis\\Boobs [Explicit]";
+    private static final String ZDIR = "Jimi Hendrix\\Are You Experienced [+video]";
+    private static String MUSICDIR = "C:\\Users\\josh\\Music\\Amazon MP3\\";
+    private static String STATIC_FILE = "C:\\Users\\Josh\\Downloads\\tv-static-01.mp3";
+
     private static enum Dimension {
         XA, YA, ZA
     }
@@ -89,19 +98,9 @@ public class IMyMeMine extends AccelerometerSketch {
             return this.file;
         }
     }
-    private static final double SMOOTHNESS = 0.1D;
-    private static final long DELAY = 7000L;
-    private static final boolean PLAYSTATIC = false;
-
-    private static final String XDIR = "Louis Armstrong\\The Best Of Louis Armstrong Vol 1";
-
-    private static final String YDIR = "Ruth Wallis\\Boobs [Explicit]";
-    private static final String ZDIR = "Jimi Hendrix\\Are You Experienced [+video]";
 
     private static final double INITIAL_MAGNITUDE = 0D;
 
-    private static String MUSICDIR = "C:\\Users\\josh\\Music\\Amazon MP3\\";
-    private static String STATIC_FILE = "C:\\Users\\Josh\\Downloads\\tv-static-01.mp3";
     private static Map<Dimension, Song> SONGS = Maps.newEnumMap(Dimension.class);
     static {
         SONGS.put(Dimension.XA, randomSongInDir(MUSICDIR + XDIR));
@@ -134,7 +133,7 @@ public class IMyMeMine extends AccelerometerSketch {
     private static final Comparator<RankablePlayer> MAGNITUDE_COMPARATOR = new Ordering<RankablePlayer>() {
         @Override
         public int compare(RankablePlayer left, RankablePlayer right) {
-            return Doubles.compare(left.getMagnitude(), right.getMagnitude());
+            return Doubles.compare(Math.abs(left.getMagnitude()), Math.abs(right.getMagnitude()));
         }
     }.reverse();
     private static final Ordering<RankablePlayer> PLAYER_COMPARATOR = Ordering.compound(ImmutableList.<Comparator<RankablePlayer>>of(
@@ -223,6 +222,13 @@ public class IMyMeMine extends AccelerometerSketch {
             stop();
             return;
         case 1:
+            background(0);
+            drawColorBars(
+                    this.smoothed.get(Dimension.XA).doubleValue(),
+                    this.smoothed.get(Dimension.YA).doubleValue(),
+                    this.smoothed.get(Dimension.ZA).doubleValue(),
+                    1D);
+            drawColorBars(xd, yd, zd, 0.7D);
             return;
         default:
         }
@@ -249,7 +255,7 @@ public class IMyMeMine extends AccelerometerSketch {
                         this.smoothed.get(Dimension.YA).doubleValue(),
                         this.smoothed.get(Dimension.ZA).doubleValue(),
                         1D);
-                drawColorBars(xd, yd, zd, 0.5D);
+                drawColorBars(xd, yd, zd, 0.7D);
                 return;
             }
         }
@@ -260,7 +266,7 @@ public class IMyMeMine extends AccelerometerSketch {
                 this.smoothed.get(Dimension.YA).doubleValue(),
                 this.smoothed.get(Dimension.ZA).doubleValue(),
                 1D);
-        drawColorBars(xd, yd, zd, 0.5D);
+        drawColorBars(xd, yd, zd, 0.7D);
 
         // Either the selected player went away or we're free to pick a new player.
         // Rank them and pick one.
@@ -296,40 +302,40 @@ public class IMyMeMine extends AccelerometerSketch {
         }
     }
 
-    private void drawColorBars(double xd, double yd, double zd, double w) {
+    private void drawColorBars(double x, double y, double z, double rectWidthPct) {
         double barHeight = this.displayHeight - 100D;
 
         // Each bar is up to 3Gs tall, either positive or negative.
-        int xHeight = (int) Math.floor((Math.max(Math.min(Math.abs(xd), 3D), 0D) / 3D) * barHeight); 
-        int yHeight = (int) Math.floor((Math.max(Math.min(Math.abs(yd), 3D), 0D) / 3D) * barHeight); 
-        int zHeight = (int) Math.floor((Math.max(Math.min(Math.abs(zd), 3D), 0D) / 3D) * barHeight); 
+        int xHeight = (int) Math.floor((Math.max(Math.min(Math.abs(x), 3D), 0D) / 9D) * barHeight); 
+        int yHeight = (int) Math.floor((Math.max(Math.min(Math.abs(y), 3D), 0D) / 9D) * barHeight); 
+        int zHeight = (int) Math.floor((Math.max(Math.min(Math.abs(z), 3D), 0D) / 9D) * barHeight); 
 
         int zeroLine = 100 + (int) Math.floor((this.displayHeight - 100D) / 2D);
 
-        int xStart = xd > 0 ? zeroLine : zeroLine - xHeight;
-        int yStart = yd > 0 ? zeroLine : zeroLine - yHeight;
-        int zStart = zd > 0 ? zeroLine : zeroLine - zHeight;
+        int xStart = x < 0 ? zeroLine : zeroLine - xHeight;
+        int yStart = y < 0 ? zeroLine : zeroLine - yHeight;
+        int zStart = z < 0 ? zeroLine : zeroLine - zHeight;
 
         double third = oneThirdWidth(1D);
         double middle = third / 2D;
-        double diff = middle * (1D - w);
+        double diff = middle * (1D - rectWidthPct);
 
         stroke(0);
         fill(1F, 0.5F, 0F);
-        rect((float) diff, xStart, (float) (third * w), xHeight);
+        rect((float) diff, xStart, (float) (third * rectWidthPct), xHeight);
 
         fill(1F, 1F, 0F);
-        rect((float) (third + diff), yStart, (float) (third * w), yHeight);
+        rect((float) (third + diff), yStart, (float) (third * rectWidthPct), yHeight);
 
         fill(0.2941176470588235F, 0, 0.5098039215686275F);
-        rect((float) ((2D * third) + diff), zStart, (float) (third * w), zHeight);
+        rect((float) ((2D * third) + diff), zStart, (float) (third * rectWidthPct), zHeight);
 
-        // Write *current* values
-        fill(0);
-        stroke(0);
-        text(String.format("%.1f", Double.valueOf(xd)), 30F + (float) diff, (xd > 0 ? 30F : -30F) + xStart);
-        text(String.format("%.1f", Double.valueOf(yd)), 30F + (float) (third + diff), (yd > 0 ? 30F : -30F) + yStart);
-        text(String.format("%.1f", Double.valueOf(zd)), 30F + (float) ((2D * third) + diff), (zd > 0 ? 30F : -30F) + zStart);
+//        // Write *current* values
+//        fill(0);
+//        stroke(0);
+//        text(String.format("%.1f", Double.valueOf(xd)), 30F + (float) diff, (xd > 0 ? 30F : -30F) + xStart);
+//        text(String.format("%.1f", Double.valueOf(yd)), 30F + (float) (third + diff), (yd > 0 ? 30F : -30F) + yStart);
+//        text(String.format("%.1f", Double.valueOf(zd)), 30F + (float) ((2D * third) + diff), (zd > 0 ? 30F : -30F) + zStart);
     }
 
     private void drawFadingBackground(long now) {

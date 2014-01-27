@@ -33,9 +33,9 @@ public class FrameLockedIterator extends AbstractIterator<AccelerometerData> {
         this.frameMillis = (long) Math.floor(1000D / frameRate);
         this.list = Lists.newArrayList();
 
-        counter = 0L;
-        offset = Long.MIN_VALUE;
-        initialized = false;
+        this.counter = 0L;
+        this.offset = Long.MIN_VALUE;
+        this.initialized = false;
     }
 
     @Nullable
@@ -43,50 +43,48 @@ public class FrameLockedIterator extends AbstractIterator<AccelerometerData> {
     protected AccelerometerData computeNext() {
         // Collect all data frames that will be aggregated into a single synthetic
         // frame for the purposes of rendering a picture.
-        ++counter;
-        long frameBegins = (counter - 1L) * frameMillis;
-        long nextFrameBegins = frameBegins + frameMillis;
-        list.clear();
+        ++this.counter;
+        long frameBegins = (this.counter - 1L) * this.frameMillis;
+        long nextFrameBegins = frameBegins + this.frameMillis;
+        this.list.clear();
 
-        while (iterator.hasNext()) {
-            AccelerometerData data = iterator.peek();
+        while (this.iterator.hasNext()) {
+            AccelerometerData data = this.iterator.peek();
             if (data == null) {
                 break;
             }
 
             long time = data.getTime();
-            if (initialized) {
-                time -= offset;
+            if (this.initialized) {
+                time -= this.offset;
                 if (time >= nextFrameBegins) {
                     break;
                 }
             }
             else {
-                offset = time;
+                this.offset = time;
                 time = 0L;
-                initialized = true;
+                this.initialized = true;
             }
 
-            list.add(iterator.next());
+            this.list.add(this.iterator.next());
         }
 
-        switch (list.size()) {
+        switch (this.list.size()) {
         case 0:
-            if (prevData != null) {
-                LOGGER.debug("Reusing " + prevData);
-                return prevData;
+            if (this.prevData != null) {
+                LOGGER.debug("Reusing " + this.prevData);
+                return this.prevData;
             }
-            else {
-                LOGGER.warn("Tried to reuse prev data, nothing there!");
-                return null;
-            }
+            LOGGER.warn("Tried to reuse prev data, nothing there!");
+            return null;
         case 1:
-            prevData = list.get(0);
-            return prevData;
+            this.prevData = this.list.get(0);
+            return this.prevData;
         default:
             double time, x, y, z, rawX, rawY, rawZ;
             time = x = y = z = rawX = rawY = rawZ = 0D;
-            for (AccelerometerData data : list) {
+            for (AccelerometerData data : this.list) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Summing: " + data);
                 }
@@ -100,23 +98,23 @@ public class FrameLockedIterator extends AbstractIterator<AccelerometerData> {
                 rawZ += rawData.getZ();
             }
             AccelerometerData aggregate = new AccelerometerData(
-                    (long) Math.floor(time / list.size()),
-                    x / list.size(),
-                    y / list.size(),
-                    z / list.size(),
+                    (long) Math.floor(time / this.list.size()),
+                    x / this.list.size(),
+                    y / this.list.size(),
+                    z / this.list.size(),
                     new AccelerometerRawData(
-                            (long) Math.floor(time / list.size()),
-                            (int) Math.floor(rawX / list.size()),
-                            (int) Math.floor(rawY / list.size()),
-                            (int) Math.floor(rawZ / list.size())));
+                            (long) Math.floor(time / this.list.size()),
+                            (int) Math.floor(rawX / this.list.size()),
+                            (int) Math.floor(rawY / this.list.size()),
+                            (int) Math.floor(rawZ / this.list.size())));
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sum of " + list.size() + " between [" + frameBegins + ".." + nextFrameBegins + "): " + aggregate);
+                LOGGER.debug("Sum of " + this.list.size() + " between [" + frameBegins + ".." + nextFrameBegins + "): " + aggregate);
             }
-            return prevData = aggregate;
+            return this.prevData = aggregate;
         }
     }
     
     public long getTime() {
-        return offset + (long) Math.floor((frameRate * counter));
+        return this.offset + (long) Math.floor((this.frameRate * this.counter));
     }
 }
