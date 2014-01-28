@@ -199,13 +199,19 @@ public class IMyMeMine extends AccelerometerSketch {
             AudioPlayer player = rPlayer.getPlayer();
             if (player.position() >= player.length() || !player.isPlaying()) {
                 LOGGER.info("Player " + rPlayer.getSong().getName() + " ended");
-                player.close();
-                this.songPlayers.remove(entry.getKey());
-                // Unhook the current player.
-                if (rPlayer == this.currentPlayer) {
-                    LOGGER.info("Also ended current player");
-                    this.currentPlayer = null;
-                    endedCurrent = true;
+
+                if (this.looping) {
+                    player.cue(0);
+                }
+                else {
+                    player.close();
+                    this.songPlayers.remove(entry.getKey());
+                    // Unhook the current player.
+                    if (rPlayer == this.currentPlayer) {
+                        LOGGER.info("Also ended current player");
+                        this.currentPlayer = null;
+                        endedCurrent = true;
+                    }
                 }
             }
         }
@@ -323,6 +329,12 @@ public class IMyMeMine extends AccelerometerSketch {
             }
             background(1F, 1F, 1F);
         }
+    }
+
+
+    @Override
+    public boolean sketchFullScreen() {
+        return true;
     }
 
     private void drawLegend() {
