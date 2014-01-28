@@ -24,6 +24,7 @@ import ddf.minim.Minim;
  * @author Josh ben Jore
  */
 public class IMyMeMine extends AccelerometerSketch {
+    private static final int SONG_BAR_HEIGHT = 100;
     private static final double SMOOTHNESS = 0.1D;
     private static final long DELAY = 7000L;
     private static final boolean PLAYSTATIC = false;
@@ -254,7 +255,7 @@ public class IMyMeMine extends AccelerometerSketch {
             else if (now < this.postSwitchDeadline) {
                 // We're inside the three second grace period so don't switch
                 // away.
-                drawFadingBackground(now);
+                background(0);
                 drawSongNames();
                 drawColorBars(
                         this.smoothed.get(Dimension.XA).doubleValue(),
@@ -314,9 +315,21 @@ public class IMyMeMine extends AccelerometerSketch {
 //        stroke(0);
 //        rect(0F, 0F, 100F, this.displayWidth);
 
-        drawSongName(Dimension.XA, 0F, 0F, (float) oneThirdWidth(1D), 100F);
-        drawSongName(Dimension.YA, (float) oneThirdWidth(1D), 0F, (float) (2D * oneThirdWidth(1D)), 100F);
-        drawSongName(Dimension.ZA, (float) (2D * oneThirdWidth(1D)), 0F, this.displayWidth, 100F);
+        drawSongName(Dimension.XA,
+                0F,
+                0F,
+                (float) oneThirdWidth(1D),
+                SONG_BAR_HEIGHT);
+        drawSongName(Dimension.YA,
+                (float) oneThirdWidth(1D),
+                0F,
+                (float) (2D * oneThirdWidth(1D)),
+                SONG_BAR_HEIGHT);
+        drawSongName(Dimension.ZA,
+                (float) (2D * oneThirdWidth(1D)),
+                0F,
+                this.displayWidth,
+                SONG_BAR_HEIGHT);
     }
 
     private void drawSongName(Dimension dimension, float a, float b, float c, float d) {
@@ -335,40 +348,112 @@ public class IMyMeMine extends AccelerometerSketch {
             fgColor = 0;
         }
 
-        stroke(bgColor);
+        stroke(fgColor);
         fill(bgColor);
         rect(a, b, c, d);
 
         fill(fgColor);
         stroke(fgColor);
         textSize(20);
-        text(song, a + 35F, b + 30F);
+        text(song, a + 5F, b + 30F);
 
         long wait = this.postSwitchDeadline - System.currentTimeMillis();
         if (!rPlayer.getPlayer().isMuted() && wait > 0L) {
-            float radius = 10F;
-            fill(bgColor);
-            stroke(fgColor);
-            float s = map(-wait, 0F, DELAY, 0, TWO_PI) - HALF_PI;
-            float e = a + 15F;
-            float f = b + 20F;
-            ellipse(e, f, radius*2F, radius*2F);
+            float radius = SONG_BAR_HEIGHT / 2F;
+            float e = c - radius;
+            float f = d - radius;
+            ellipse(e, f, SONG_BAR_HEIGHT, SONG_BAR_HEIGHT);
 
-            fill(fgColor);
-            stroke(fgColor);
-            line(e, f, e + cos(s) * radius, f + sin(s) * radius);
+            fill(bgColor);
+            stroke(bgColor);
+
+            float percentile = (float) wait / (float) DELAY;
+            if (1F >= percentile && percentile > 0.875F) {
+                triangle(
+                        c-radius, b,
+                        c-radius, b+radius,
+                        c-(radius * norm(percentile, 0.875F, 1F)), b);
+            }
+            else if (0.875F >= percentile && percentile > 0.75F) {
+                triangle(
+                        c-radius, b,
+                        c-radius, b+radius,
+                        c, b);
+                triangle(
+                        c-radius, b+radius,
+                        c, b,
+                        c, b+(radius*(1F-norm(percentile, 0.75F, 0.875F))));
+            }
+            else if (0.75F >= percentile && percentile > 0.625F) {
+                rect(c-radius, b,
+                        radius, radius);
+                triangle(
+                        c-radius, b+radius,
+                        c, b+radius,
+                        c, b+radius+(radius*(1F-norm(percentile, 0.625F, 0.75F))));
+            }
+            else if (0.625F >= percentile && percentile > 0.5F) {
+                rect(c-radius, b,
+                        radius, radius);
+                triangle(
+                        c-radius, b+radius,
+                        c, b+radius,
+                        c, d);
+                triangle(
+                        c-radius, b+radius,
+                        c, d,
+                        c-(radius*(1F-norm(percentile, 0.5F, 0.625F))), d);
+            }
+            else if (0.5F >= percentile && percentile > 0.375F) {
+                rect(c-radius, b, d, d);
+                triangle(
+                        c-radius, b+radius,
+                        c-radius, d,
+                        c-radius-(radius*(1F-norm(percentile, 0.375F, 0.5F))), d);
+            }
+            else if (0.375 >= percentile && percentile > 0.25F) {
+                rect(c-radius, b, d, d);
+                triangle(
+                        c-radius, b+radius,
+                        c-radius, d,
+                        c-d, d);
+                triangle(
+                        c-radius, b+radius,
+                        c-d, d,
+                        c-d, d-(radius*(1F-norm(percentile, 0.25F, 0.375F))));
+            }
+            else if (0.25F >= percentile && percentile > 0.125F) {
+                rect(c-radius, b, d, d);
+                rect(c-d, b+radius, radius, radius);
+                triangle(
+                        c-d, b+radius,
+                        c-radius, b+radius,
+                        c-d, b+(radius*(norm(percentile, 0.125F, 0.25F))));
+            }
+            else {
+                rect(c-radius, b, d, d);
+                rect(c-d, b+radius, radius, radius);
+                triangle(
+                        c-d, b+radius,
+                        c-radius, b+radius,
+                        c-d, b);
+                triangle(
+                        c-d, b,
+                        c-radius, b+radius,
+                        c-radius-(radius*(norm(percentile, 0F, 0.125F))), b);
+            }
         }
     }
 
     private void drawColorBars(double x, double y, double z, double rectWidthPct) {
-        double barHeight = this.displayHeight - 100D;
+        double barHeight = this.displayHeight - SONG_BAR_HEIGHT;
 
         // Each bar is up to 3Gs tall, either positive or negative.
         int xHeight = (int) Math.floor((Math.max(Math.min(Math.abs(x), 3D), 0D) / 9D) * barHeight); 
         int yHeight = (int) Math.floor((Math.max(Math.min(Math.abs(y), 3D), 0D) / 9D) * barHeight); 
         int zHeight = (int) Math.floor((Math.max(Math.min(Math.abs(z), 3D), 0D) / 9D) * barHeight); 
 
-        int zeroLine = 100 + (int) Math.floor((this.displayHeight - 100D) / 2D);
+        int zeroLine = SONG_BAR_HEIGHT + (int) Math.floor((this.displayHeight - SONG_BAR_HEIGHT) / 2D);
 
         int xStart = x < 0 ? zeroLine : zeroLine - xHeight;
         int yStart = y < 0 ? zeroLine : zeroLine - yHeight;
@@ -394,15 +479,6 @@ public class IMyMeMine extends AccelerometerSketch {
 //        text(String.format("%.1f", Double.valueOf(xd)), 30F + (float) diff, (xd > 0 ? 30F : -30F) + xStart);
 //        text(String.format("%.1f", Double.valueOf(yd)), 30F + (float) (third + diff), (yd > 0 ? 30F : -30F) + yStart);
 //        text(String.format("%.1f", Double.valueOf(zd)), 30F + (float) ((2D * third) + diff), (zd > 0 ? 30F : -30F) + zStart);
-    }
-
-    private void drawFadingBackground(long now) {
-        long gray = this.postSwitchDeadline - now;
-        float delta = (float) gray / (float) DELAY;
-        background(0);
-        //fill(1F, 1F, 1F);
-        //background(delta);
-        //background(delta, delta, delta);
     }
 
     private double oneThirdWidth(double w) { 
