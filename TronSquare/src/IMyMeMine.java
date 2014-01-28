@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FilenameFilter;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import processing.core.PConstants;
 import limn.radio.AccelerometerRawData;
 
 import com.google.common.base.Objects;
@@ -25,9 +27,6 @@ import ddf.minim.Minim;
  */
 public class IMyMeMine extends AccelerometerSketch {
     private static final int SONG_BAR_HEIGHT = 100;
-    private static final double SMOOTHNESS = 0.1D;
-    private static final long DELAY = 7000L;
-    private static final boolean PLAYSTATIC = false;
     private static final String XDIR = "Louis Armstrong\\The Best Of Louis Armstrong Vol 1";
     private static final String YDIR = "Ruth Wallis\\Boobs [Explicit]";
     private static final String ZDIR = "Jimi Hendrix\\Are You Experienced [+video]";
@@ -132,7 +131,11 @@ public class IMyMeMine extends AccelerometerSketch {
     private Map<Dimension, RankablePlayer> songPlayers;
     private Map<Dimension, Double> smoothed;
     private RankablePlayer currentPlayer;
-    private long postSwitchDeadline;
+    private long postSwitchStarted;
+    private boolean playStatic;
+    private long delay = 7000L;
+    private double smoothness;
+    private boolean infinite;
 
     private static final Comparator<Dimension> DIMENSION_ORDERING = Ordering.explicit(Dimension.XA, Dimension.YA, Dimension.ZA);
     private static final Comparator<RankablePlayer> MAGNITUDE_COMPARATOR = new Ordering<RankablePlayer>() {
@@ -217,6 +220,15 @@ public class IMyMeMine extends AccelerometerSketch {
                 this.staticPlayer.pause();
                 this.staticPlayer.cue(0);
             }
+            background(0);
+            drawSongNames();
+            drawColorBars(
+                    this.smoothed.get(Dimension.XA).doubleValue(),
+                    this.smoothed.get(Dimension.YA).doubleValue(),
+                    this.smoothed.get(Dimension.ZA).doubleValue(),
+                    1D);
+            drawColorBars(xd, yd, zd, 0.7D);
+            drawLegend();
             return;
         }
 
@@ -235,16 +247,17 @@ public class IMyMeMine extends AccelerometerSketch {
                     this.smoothed.get(Dimension.ZA).doubleValue(),
                     1D);
             drawColorBars(xd, yd, zd, 0.7D);
+            drawLegend();
             return;
         default:
         }
 
         long now = System.currentTimeMillis();
         if (this.currentPlayer != null && this.currentPlayer.getPlayer().isPlaying()) {
-            if (0L == this.postSwitchDeadline) {
+            if (0L == this.postSwitchStarted) {
                 // For the next three seconds, play the selected audio or something
                 // else if it isn't available
-                this.postSwitchDeadline = now + DELAY;
+                this.postSwitchStarted = now;
                 AudioPlayer player = this.currentPlayer.getPlayer();
                 if (player.isMuted()) {
                     LOGGER.info(this.currentPlayer.getSong().getName());
@@ -252,7 +265,7 @@ public class IMyMeMine extends AccelerometerSketch {
                 }
                 return;
             }
-            else if (now < this.postSwitchDeadline) {
+            else if (now < (this.postSwitchStarted + this.delay)) {
                 // We're inside the three second grace period so don't switch
                 // away.
                 background(0);
@@ -263,6 +276,7 @@ public class IMyMeMine extends AccelerometerSketch {
                         this.smoothed.get(Dimension.ZA).doubleValue(),
                         1D);
                 drawColorBars(xd, yd, zd, 0.7D);
+                drawLegend();
                 return;
             }
         }
@@ -275,6 +289,7 @@ public class IMyMeMine extends AccelerometerSketch {
                 this.smoothed.get(Dimension.ZA).doubleValue(),
                 1D);
         drawColorBars(xd, yd, zd, 0.7D);
+        drawLegend();
 
         // Either the selected player went away or we're free to pick a new player.
         // Rank them and pick one.
@@ -302,12 +317,22 @@ public class IMyMeMine extends AccelerometerSketch {
         else {
             this.currentPlayer.getPlayer().mute();
             this.currentPlayer = selectedPlayer;
-            this.postSwitchDeadline = 0L;
-            if (PLAYSTATIC) {
+            this.postSwitchStarted = 0L;
+            if (this.playStatic) {
                 this.staticPlayer.play(0);
             }
             background(1F, 1F, 1F);
         }
+    }
+
+    private void drawLegend() {
+        stroke(1);
+        fill(1);
+        String legend =
+                "\u2190 \u2192: " + new DecimalFormat("#.#").format(Float.valueOf(this.delay / 1000F)) + "seconds delay   " +
+                "\u2191 \u2193: " + Integer.toString((int) (this.smoothness * 100D)) + "% smoothness   " +
+                (this.playStatic ? "SPC: static   " : "SPC: no static   ");
+        text(legend, 30, this.displayHeight - 100);
     }
 
     private void drawSongNames() {
@@ -357,7 +382,7 @@ public class IMyMeMine extends AccelerometerSketch {
         textSize(20);
         text(song, a + 5F, b + 30F);
 
-        long wait = this.postSwitchDeadline - System.currentTimeMillis();
+        long wait = (this.postSwitchStarted + this.delay) - System.currentTimeMillis();
         if (!rPlayer.getPlayer().isMuted() && wait > 0L) {
             float radius = SONG_BAR_HEIGHT / 2F;
             float e = c - radius;
@@ -367,7 +392,7 @@ public class IMyMeMine extends AccelerometerSketch {
             fill(bgColor);
             stroke(bgColor);
 
-            float percentile = (float) wait / (float) DELAY;
+            float percentile = (float) wait / (float) this.delay;
             if (1F >= percentile && percentile > 0.875F) {
                 triangle(
                         c-radius, b,
@@ -491,6 +516,10 @@ public class IMyMeMine extends AccelerometerSketch {
         this.staticPlayer = this.minim.loadFile(STATIC_FILE);
         this.songPlayers = Maps.<Dimension, RankablePlayer>newEnumMap(Dimension.class);
         this.smoothed = Maps.<Dimension, Double>newEnumMap(Dimension.class);
+        this.delay = 7000L;
+        this.smoothness = 0.1D;
+        this.playStatic = true;
+        this.infinite = false;
         for (Dimension dimension : Dimension.values()) {
             Song song = SONGS.get(dimension);
             AudioPlayer player = this.minim.loadFile(song.getFile());
@@ -508,8 +537,8 @@ public class IMyMeMine extends AccelerometerSketch {
         background(0F, 0F, 0F);
     }
 
-    private static double smooth(double gd, double d) {
-        return (1D - SMOOTHNESS)*gd + SMOOTHNESS*d;
+    private double smooth(double gd, double d) {
+        return (1D - this.smoothness)*gd + this.smoothness*d;
     }
 
     @Override
@@ -530,5 +559,36 @@ public class IMyMeMine extends AccelerometerSketch {
 
         super.stop();
         System.exit(0);
+    }
+    
+    @Override
+    public void keyPressed() {
+        switch (this.key) {
+        case PConstants.CODED:
+            switch (this.keyCode) {
+            case PConstants.UP:
+                this.delay  += 1000L;
+                break;
+            case PConstants.DOWN:
+                this.delay = Math.max(this.delay - 1000L, 0L);
+                break;
+            case PConstants.LEFT:
+                this.smoothness = Math.max(this.smoothness - 0.1F, 0F);
+                break;
+            case PConstants.RIGHT:
+                this.smoothness = Math.min(this.smoothness + 0.1F, 1F);
+                break;
+            default:
+                return;
+            }
+            break;
+        case 'i':
+            this.infinite = !this.infinite;
+            break;
+        case ' ':
+            this.playStatic = !this.playStatic;
+            break;
+        default:
+        }
     }
 }
