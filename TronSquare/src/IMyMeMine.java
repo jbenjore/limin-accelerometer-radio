@@ -343,7 +343,7 @@ public class IMyMeMine extends AccelerometerSketch {
         stroke(1);
         fill(1);
         String legend =
-                "\u2191 \u2193: " + new DecimalFormat("#.#").format(Float.valueOf(this.delay / 1000F)) + "seconds delay   " +
+                "\u2191 \u2193: " + (this.delay > 0 ? new DecimalFormat("#.#").format(Float.valueOf(this.delay / 1000F)) + " seconds": "no") + " delay   " +
                         "\u2190 \u2192: " + Integer.toString(100 - this.smoothness) + "% smoothness   " +
                         (this.playStatic ? "SPC: static   " : "SPC: no static   ") +
                         "L: " + (this.loopSongs ? "looping" : "play once");
