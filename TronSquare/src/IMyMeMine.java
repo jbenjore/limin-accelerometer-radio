@@ -349,9 +349,9 @@ public class IMyMeMine extends AccelerometerSketch {
     }
 
     private void drawSongNames() {
-//        fill(0);
-//        stroke(0);
-//        rect(0F, 0F, 100F, this.displayWidth);
+        //        fill(0);
+        //        stroke(0);
+        //        rect(0F, 0F, 100F, this.displayWidth);
 
         drawSongName(Dimension.XA,
                 0F,
@@ -511,12 +511,12 @@ public class IMyMeMine extends AccelerometerSketch {
         fill(0.2941176470588235F, 0, 0.5098039215686275F);
         rect((float) ((2D * third) + diff), zStart, (float) (third * rectWidthPct), zHeight);
 
-//        // Write *current* values
-//        fill(0);
-//        stroke(0);
-//        text(String.format("%.1f", Double.valueOf(xd)), 30F + (float) diff, (xd > 0 ? 30F : -30F) + xStart);
-//        text(String.format("%.1f", Double.valueOf(yd)), 30F + (float) (third + diff), (yd > 0 ? 30F : -30F) + yStart);
-//        text(String.format("%.1f", Double.valueOf(zd)), 30F + (float) ((2D * third) + diff), (zd > 0 ? 30F : -30F) + zStart);
+        //        // Write *current* values
+        //        fill(0);
+        //        stroke(0);
+        //        text(String.format("%.1f", Double.valueOf(xd)), 30F + (float) diff, (xd > 0 ? 30F : -30F) + xStart);
+        //        text(String.format("%.1f", Double.valueOf(yd)), 30F + (float) (third + diff), (yd > 0 ? 30F : -30F) + yStart);
+        //        text(String.format("%.1f", Double.valueOf(zd)), 30F + (float) ((2D * third) + diff), (zd > 0 ? 30F : -30F) + zStart);
     }
 
     private double oneThirdWidth(double w) { 
