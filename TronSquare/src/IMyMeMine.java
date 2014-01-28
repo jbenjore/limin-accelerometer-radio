@@ -27,9 +27,12 @@ import ddf.minim.Minim;
  */
 public class IMyMeMine extends AccelerometerSketch {
     private static final int SONG_BAR_HEIGHT = 100;
-    private static final String XDIR = "Louis Armstrong\\The Best Of Louis Armstrong Vol 1";
-    private static final String YDIR = "Ruth Wallis\\Boobs [Explicit]";
-    private static final String ZDIR = "Jimi Hendrix\\Are You Experienced [+video]";
+    private static final Map<Dimension, String> SONG_DIRS = Maps.newEnumMap(Dimension.class);
+    static {
+        SONG_DIRS.put(Dimension.XA, "Louis Armstrong\\The Best Of Louis Armstrong Vol 1");
+        SONG_DIRS.put(Dimension.YA, "Ruth Wallis\\Boobs [Explicit]");
+        SONG_DIRS.put(Dimension.ZA, "Jimi Hendrix\\Are You Experienced [+video]");
+    }
     private static String MUSICDIR = "C:\\Users\\josh\\Music\\Amazon MP3\\";
     private static String STATIC_FILE = "C:\\Users\\Josh\\Downloads\\tv-static-01.mp3";
 
@@ -107,9 +110,13 @@ public class IMyMeMine extends AccelerometerSketch {
 
     private static Map<Dimension, Song> SONGS = Maps.newEnumMap(Dimension.class);
     static {
-        SONGS.put(Dimension.XA, randomSongInDir(MUSICDIR + XDIR));
-        SONGS.put(Dimension.YA, randomSongInDir(MUSICDIR + YDIR));
-        SONGS.put(Dimension.ZA, randomSongInDir(MUSICDIR + ZDIR));
+        randomizeSongs();
+    }
+    
+    private static void randomizeSongs() {
+        for (Dimension dimension : Dimension.values()) {
+            SONGS.put(dimension, randomSongInDir(MUSICDIR + SONG_DIRS.get(dimension)));
+        }
     }
 
     private static Song randomSongInDir(String dirName) {
