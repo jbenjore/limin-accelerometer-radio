@@ -134,8 +134,7 @@ public class IMyMeMine extends AccelerometerSketch {
     private long postSwitchStarted;
     private boolean playStatic;
     private long delay = 7000L;
-    private double smoothness;
-    private boolean infinite;
+    private int smoothness;
 
     private static final Comparator<Dimension> DIMENSION_ORDERING = Ordering.explicit(Dimension.XA, Dimension.YA, Dimension.ZA);
     private static final Comparator<RankablePlayer> MAGNITUDE_COMPARATOR = new Ordering<RankablePlayer>() {
@@ -530,9 +529,8 @@ public class IMyMeMine extends AccelerometerSketch {
         this.songPlayers = Maps.<Dimension, RankablePlayer>newEnumMap(Dimension.class);
         this.smoothed = Maps.<Dimension, Double>newEnumMap(Dimension.class);
         this.delay = 7000L;
-        this.smoothness = 0.1D;
+        this.smoothness = 30;
         this.playStatic = true;
-        this.infinite = false;
         for (Dimension dimension : Dimension.values()) {
             Song song = SONGS.get(dimension);
             AudioPlayer player = this.minim.loadFile(song.getFile());
@@ -551,7 +549,8 @@ public class IMyMeMine extends AccelerometerSketch {
     }
 
     private double smooth(double gd, double d) {
-        return (1D - this.smoothness)*gd + this.smoothness*d;
+        double s = this.smoothness / 100D;
+        return (1D - s)*gd + s*d;
     }
 
     @Override
@@ -586,10 +585,10 @@ public class IMyMeMine extends AccelerometerSketch {
                 this.delay = Math.max(this.delay - 500L, 0L);
                 break;
             case PConstants.LEFT:
-                this.smoothness = Math.max(this.smoothness - 0.1F, 0F);
+                this.smoothness = Math.min(this.smoothness + 5, 100);
                 break;
             case PConstants.RIGHT:
-                this.smoothness = Math.min(this.smoothness + 0.1F, 1F);
+                this.smoothness = Math.max(this.smoothness - 5, 0);
                 break;
             default:
                 return;
