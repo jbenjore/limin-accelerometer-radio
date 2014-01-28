@@ -135,6 +135,7 @@ public class IMyMeMine extends AccelerometerSketch {
     private boolean playStatic;
     private long delay = 7000L;
     private int smoothness;
+    private boolean loopSongs;
 
     private static final Comparator<Dimension> DIMENSION_ORDERING = Ordering.explicit(Dimension.XA, Dimension.YA, Dimension.ZA);
     private static final Comparator<RankablePlayer> MAGNITUDE_COMPARATOR = new Ordering<RankablePlayer>() {
@@ -199,8 +200,10 @@ public class IMyMeMine extends AccelerometerSketch {
             if (player.position() >= player.length() || !player.isPlaying()) {
                 LOGGER.info("Player " + rPlayer.getSong().getName() + " ended");
 
-                if (this.looping) {
-                    player.cue(0);
+                if (this.loopSongs) {
+                    if (!player.isPlaying()) {
+                        player.play(0);
+                    }
                 }
                 else {
                     player.close();
@@ -343,7 +346,7 @@ public class IMyMeMine extends AccelerometerSketch {
                 "\u2191 \u2193: " + new DecimalFormat("#.#").format(Float.valueOf(this.delay / 1000F)) + "seconds delay   " +
                         "\u2190 \u2192: " + Integer.toString(100 - this.smoothness) + "% smoothness   " +
                         (this.playStatic ? "SPC: static   " : "SPC: no static   ") +
-                        "L: " + (this.looping ? "looping" : "play once");
+                        "L: " + (this.loopSongs ? "looping" : "play once");
         text(legend, 30, this.displayHeight - 100);
     }
 
@@ -531,6 +534,8 @@ public class IMyMeMine extends AccelerometerSketch {
         this.delay = 7000L;
         this.smoothness = 30;
         this.playStatic = true;
+        this.loopSongs = false;
+
         for (Dimension dimension : Dimension.values()) {
             Song song = SONGS.get(dimension);
             AudioPlayer player = this.minim.loadFile(song.getFile());
@@ -595,7 +600,7 @@ public class IMyMeMine extends AccelerometerSketch {
             }
             break;
         case 'l':
-            this.looping = !this.looping;
+            this.loopSongs = !this.loopSongs;
             break;
         case ' ':
             this.playStatic = !this.playStatic;
