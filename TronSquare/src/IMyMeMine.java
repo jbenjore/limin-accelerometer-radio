@@ -347,7 +347,7 @@ public class IMyMeMine extends AccelerometerSketch {
                         "\u2190 \u2192: " + Integer.toString(100 - this.smoothness) + "% smoothness   " +
                         (this.playStatic ? "SPC: static   " : "SPC: no static   ") +
                         "L: " + (this.loopSongs ? "looping" : "play once");
-        text(legend, 30, this.displayHeight - 100);
+        text(legend, 30, this.displayHeight - 30);
     }
 
     private void drawSongNames() {
@@ -547,7 +547,7 @@ public class IMyMeMine extends AccelerometerSketch {
         }
         this.currentPlayer = null;
         accelerometerData();
-        size(this.displayWidth - 5, this.displayHeight - 70);
+        size(this.displayWidth, this.displayHeight);
         colorMode(RGB, 1F);
         textSize(64);
         background(0F, 0F, 0F);
