@@ -573,17 +573,17 @@ public class IMyMeMine extends AccelerometerSketch {
         super.stop();
         System.exit(0);
     }
-    
+
     @Override
     public void keyPressed() {
         switch (this.key) {
         case PConstants.CODED:
             switch (this.keyCode) {
             case PConstants.UP:
-                this.delay  += 1000L;
+                this.delay  += 500L;
                 break;
             case PConstants.DOWN:
-                this.delay = Math.max(this.delay - 1000L, 0L);
+                this.delay = Math.max(this.delay - 500L, 0L);
                 break;
             case PConstants.LEFT:
                 this.smoothness = Math.max(this.smoothness - 0.1F, 0F);
@@ -595,8 +595,8 @@ public class IMyMeMine extends AccelerometerSketch {
                 return;
             }
             break;
-        case 'i':
-            this.infinite = !this.infinite;
+        case 'l':
+            this.looping = !this.looping;
             break;
         case ' ':
             this.playStatic = !this.playStatic;
